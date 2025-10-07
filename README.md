@@ -1,1 +1,1189 @@
-# turnturnwin.github.io
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎰 Jackpot des Symboles Mystères</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+      color: #fff;
+      text-align: center;
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .game-container {
+      max-width: 900px;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      border-radius: 20px;
+      padding: 30px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+      border: 3px solid rgba(255, 215, 0, 0.5);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .game-container::before {
+      content: '';
+      position: absolute;
+      top: -5px;
+      left: -5px;
+      right: -5px;
+      bottom: -5px;
+      background: linear-gradient(45deg, #ffd700, #ff6b9d, #c44569, #ffd700);
+      border-radius: 25px;
+      z-index: -1;
+      animation: borderGlow 3s linear infinite;
+    }
+
+    @keyframes borderGlow {
+      0% { filter: hue-rotate(0deg); }
+      100% { filter: hue-rotate(360deg); }
+    }
+
+    h1 {
+      font-size: 2.8em;
+      margin-bottom: 15px;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+      background: linear-gradient(45deg, #ff6b9d, #feca57);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .jackpot-display {
+      background: linear-gradient(45deg, #e74c3c, #c0392b);
+      padding: 15px;
+      border-radius: 15px;
+      margin: 15px 0;
+      border: 3px solid gold;
+      animation: jackpotPulse 2s infinite;
+      box-shadow: 0 0 20px rgba(231, 76, 60, 0.5);
+    }
+
+    @keyframes jackpotPulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(231, 76, 60, 0.5); }
+      50% { transform: scale(1.02); box-shadow: 0 0 30px rgba(231, 76, 60, 0.8); }
+    }
+
+    .jackpot-amount {
+      font-size: 2.5em;
+      font-weight: bold;
+      color: gold;
+      text-shadow: 0 0 10px rgba(0,0,0,0.8);
+    }
+
+    .jackpot-label {
+      font-size: 1.2em;
+      color: white;
+      margin-bottom: 5px;
+    }
+
+    .lock-container {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin: 30px 0;
+      perspective: 1000px;
+      flex-wrap: wrap;
+    }
+
+    .symbol-wheel {
+      width: 80px;
+      height: 120px;
+      background: linear-gradient(145deg, #2c3e50, #34495e);
+      border-radius: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 3em;
+      font-weight: bold;
+      color: #feca57;
+      box-shadow: 
+        inset 0 0 10px rgba(0, 0, 0, 0.5),
+        0 5px 15px rgba(0, 0, 0, 0.3);
+      border: 3px solid #feca57;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s;
+    }
+
+    .symbol-wheel:hover {
+      transform: translateY(-5px);
+    }
+
+    .symbol-wheel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 50%;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.1), transparent);
+      pointer-events: none;
+    }
+
+    .symbol-wheel::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #feca57;
+      box-shadow: 0 0 10px #feca57;
+    }
+
+    .symbol-wheel.winning {
+      animation: winPulse 0.5s ease-in-out 3;
+      background: linear-gradient(145deg, #27ae60, #2ecc71);
+      color: white;
+    }
+
+    @keyframes winPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    .symbol-wheel.spinning {
+      animation: spinSymbol 0.1s linear infinite;
+    }
+
+    .symbol-wheel.fast-spin {
+      animation: spinSymbol 0.03s linear infinite;
+    }
+
+    @keyframes spinSymbol {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+      100% { transform: translateY(0); }
+    }
+
+    .symbol-image {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
+    }
+
+    .attack-modes {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+
+    .attack-mode-btn {
+      padding: 10px 15px;
+      font-size: 14px;
+      cursor: pointer;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(5px);
+      min-width: 60px;
+      font-weight: bold;
+    }
+
+    .attack-mode-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .attack-mode-btn.active {
+      background: linear-gradient(45deg, #ff6b9d, #feca57);
+      border-color: #fff;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+    }
+
+    .controls {
+      margin: 25px 0;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    button {
+      padding: 15px 30px;
+      margin: 5px;
+      font-size: 18px;
+      cursor: pointer;
+      border: none;
+      border-radius: 50px;
+      background: linear-gradient(45deg, #ff6b9d, #c44569);
+      color: #fff;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      text-transform: uppercase;
+      font-weight: bold;
+      letter-spacing: 1px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: 0.5s;
+    }
+
+    button:hover::before {
+      left: 100%;
+    }
+
+    button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+      background: linear-gradient(45deg, #feca57, #ff6b9d);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button:disabled {
+      background: #555;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    button:disabled:hover::before {
+      left: -100%;
+    }
+
+    #spinBtn {
+      background: linear-gradient(45deg, #27ae60, #2ecc71);
+      font-size: 20px;
+      padding: 18px 40px;
+    }
+
+    #spinBtn:hover {
+      background: linear-gradient(45deg, #2ecc71, #27ae60);
+    }
+
+    #speedBtn {
+      background: linear-gradient(45deg, #3498db, #2980b9);
+      font-size: 16px;
+      padding: 15px 25px;
+    }
+
+    #speedBtn:hover {
+      background: linear-gradient(45deg, #2980b9, #3498db);
+    }
+
+    #speedBtn.active {
+      background: linear-gradient(45deg, #e74c3c, #c0392b);
+      animation: pulseSpeed 1s infinite;
+    }
+
+    @keyframes pulseSpeed {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    #message {
+      margin: 20px 0;
+      font-size: 1.3em;
+      font-weight: bold;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .result-box {
+      background: linear-gradient(135deg, rgba(39, 174, 96, 0.9), rgba(46, 204, 113, 0.9));
+      padding: 20px;
+      border-radius: 15px;
+      margin: 20px 0;
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(10px);
+      animation: fadeInUp 0.5s ease;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .stats {
+      display: flex;
+      justify-content: space-around;
+      margin: 20px 0;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 15px;
+      border-radius: 10px;
+      flex-wrap: wrap;
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      margin: 5px 10px;
+    }
+
+    .stat-value {
+      font-size: 1.8em;
+      font-weight: bold;
+      color: #feca57;
+    }
+
+    .win-animation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .confetti {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: #feca57;
+      opacity: 0;
+    }
+
+    @keyframes confettiFall {
+      0% {
+        transform: translateY(-100px) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(1000px) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    .win-text {
+      font-size: 5em;
+      font-weight: bold;
+      color: #feca57;
+      text-shadow: 0 0 20px rgba(254, 202, 87, 0.8);
+      animation: textPulse 1s ease-in-out infinite;
+    }
+
+    @keyframes textPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    .lock-body {
+      width: 100%;
+      max-width: 600px;
+      height: 150px;
+      background: linear-gradient(145deg, #8B4513, #A0522D);
+      margin: 0 auto 20px;
+      border-radius: 10px;
+      position: relative;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .lock-shackle {
+      position: absolute;
+      top: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 80px;
+      border: 15px solid #D2691E;
+      border-bottom: none;
+      border-radius: 60px 60px 0 0;
+      z-index: 1;
+    }
+
+    .difficulty-info {
+      margin: 10px 0;
+      font-size: 1.1em;
+      color: #feca57;
+    }
+
+    /* ANIMATIONS DE RÉCOMPENSE */
+    .reward-animation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      background: rgba(0, 0, 0, 0.95);
+      animation: rewardFadeIn 0.8s ease;
+    }
+
+    @keyframes rewardFadeIn {
+      from { 
+        opacity: 0; 
+        background: rgba(0, 0, 0, 0);
+      }
+      to { 
+        opacity: 1; 
+        background: rgba(0, 0, 0, 0.95);
+      }
+    }
+
+    .reward-popup {
+      background: linear-gradient(135deg, #ff6b9d, #feca57, #ff6b9d);
+      padding: 40px;
+      border-radius: 25px;
+      text-align: center;
+      max-width: 600px;
+      animation: rewardScaleIn 0.8s ease;
+      border: 4px solid gold;
+      box-shadow: 0 0 50px rgba(255, 215, 0, 0.8);
+      position: relative;
+      overflow: hidden;
+      z-index: 10000;
+    }
+
+    .reward-popup::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+      animation: shine 3s infinite;
+      transform: rotate(45deg);
+    }
+
+    @keyframes shine {
+      0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+      100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+    }
+
+    @keyframes rewardScaleIn {
+      from { 
+        transform: scale(0.3) rotate(-10deg);
+        opacity: 0;
+      }
+      to { 
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+      }
+    }
+
+    .reward-popup-icon {
+      font-size: 8em;
+      margin-bottom: 20px;
+      animation: rewardBounce 1s infinite, glow 2s infinite;
+      filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.8));
+    }
+
+    @keyframes rewardBounce {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-30px) scale(1.2); }
+    }
+
+    @keyframes glow {
+      0%, 100% { filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.8)); }
+      50% { filter: drop-shadow(0 0 40px rgba(255, 255, 255, 1)); }
+    }
+
+    .reward-popup-title {
+      font-size: 3.5em;
+      margin-bottom: 15px;
+      color: white;
+      text-shadow: 0 0 20px rgba(0,0,0,0.8);
+      background: linear-gradient(45deg, #ff6b9d, #feca57);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: titlePulse 2s infinite;
+    }
+
+    @keyframes titlePulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    .reward-popup-description {
+      font-size: 1.5em;
+      margin-bottom: 25px;
+      color: white;
+      font-weight: bold;
+      text-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+
+    .reward-close {
+      padding: 15px 30px;
+      background: linear-gradient(45deg, #2ecc71, #27ae60);
+      border: none;
+      border-radius: 50px;
+      color: white;
+      font-size: 1.3em;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: bold;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      z-index: 10001;
+    }
+
+    .reward-close:hover {
+      background: linear-gradient(45deg, #27ae60, #2ecc71);
+      transform: scale(1.1);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+    }
+
+    .speed-indicator {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: linear-gradient(45deg, #e74c3c, #c0392b);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 15px;
+      font-size: 0.8em;
+      font-weight: bold;
+      display: none;
+    }
+
+    /* COULEURS POUR CHAQUE SYMBOLE */
+    .symbol-1 { border-color: #9b59b6; }
+    .symbol-2 { border-color: #e74c3c; }
+    .symbol-3 { border-color: #f39c12; }
+    .symbol-4 { border-color: #34495e; }
+    .symbol-5 { border-color: #7f8c8d; }
+    .symbol-6 { border-color: #27ae60; }
+    .symbol-7 { border-color: #8e44ad; }
+    .symbol-8 { border-color: #d35400; }
+
+    .symbol-1.winning { background: linear-gradient(145deg, #8e44ad, #9b59b6); }
+    .symbol-2.winning { background: linear-gradient(145deg, #c0392b, #e74c3c); }
+    .symbol-3.winning { background: linear-gradient(145deg, #e67e22, #f39c12); }
+    .symbol-4.winning { background: linear-gradient(145deg, #2c3e50, #34495e); }
+    .symbol-5.winning { background: linear-gradient(145deg, #636e72, #7f8c8d); }
+    .symbol-6.winning { background: linear-gradient(145deg, #27ae60, #2ecc71); }
+    .symbol-7.winning { background: linear-gradient(145deg, #8e44ad, #9b59b6); }
+    .symbol-8.winning { background: linear-gradient(145deg, #e67e22, #f39c12); }
+
+    .jackpot-hidden {
+      opacity: 0.3;
+      filter: blur(3px);
+    }
+
+    .jackpot-visible {
+      opacity: 1;
+      filter: none;
+    }
+
+    @media (max-width: 768px) {
+      .game-container {
+        padding: 20px;
+        margin: 10px;
+      }
+      
+      h1 {
+        font-size: 2.2em;
+      }
+      
+      .symbol-wheel {
+        width: 70px;
+        height: 100px;
+      }
+      
+      .symbol-image {
+        width: 50px;
+        height: 50px;
+      }
+      
+      button {
+        padding: 12px 25px;
+        font-size: 16px;
+      }
+      
+      #spinBtn {
+        font-size: 18px;
+        padding: 15px 30px;
+      }
+
+      .attack-mode-btn {
+        padding: 8px 12px;
+        font-size: 12px;
+        min-width: 50px;
+      }
+
+      .controls {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .symbol-wheel {
+        width: 60px;
+        height: 90px;
+      }
+      
+      .symbol-image {
+        width: 40px;
+        height: 40px;
+      }
+      
+      .lock-container {
+        gap: 8px;
+      }
+
+      .attack-modes {
+        gap: 5px;
+      }
+
+      .attack-mode-btn {
+        padding: 6px 10px;
+        font-size: 11px;
+        min-width: 45px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <h1>🎰 Jackpot des Symboles Mystères</h1>
+    
+    <!-- COMPTEUR DE ROSES JACKPOT -->
+    <div class="jackpot-display" id="jackpotDisplay">
+      <div class="jackpot-label">JACKPOT ACTUEL</div>
+      <div class="jackpot-amount" id="jackpotAmount">0 🌹</div>
+      <div class="jackpot-info" id="jackpotInfo">Jackpot visible à partir de 1000 roses</div>
+    </div>
+
+    <div class="difficulty-info" id="difficultyInfo">Objectif : Aligner 5 symboles identiques ! (0.0244% de chances - 1 sur 4,096)</div>
+    
+    <div class="lock-body">
+      <div class="lock-shackle"></div>
+      <div class="lock-container" id="lockContainer">
+        <!-- Les roues de symboles seront générées ici -->
+      </div>
+    </div>
+
+    <div class="attack-modes">
+      <button id="mode1" class="attack-mode-btn active">1 tour</button>
+      <button id="mode5" class="attack-mode-btn">5 tours</button>
+      <button id="mode10" class="attack-mode-btn">10 tours</button>
+      <button id="mode30" class="attack-mode-btn">30 tours</button>
+      <button id="mode100" class="attack-mode-btn">100 tours</button>
+      <button id="mode500" class="attack-mode-btn">500 tours</button>
+      <button id="mode1000" class="attack-mode-btn">1,000 tours</button>
+    </div>
+
+    <!-- STATISTIQUES -->
+    <div class="stats">
+      <div class="stat-item">
+        <div>Tours joués</div>
+        <div class="stat-value" id="attemptsCount">0</div>
+      </div>
+      <div class="stat-item">
+        <div>Roses accumulées</div>
+        <div class="stat-value" id="rosesCount">0</div>
+      </div>
+      <div class="stat-item">
+        <div>Prochain bonus</div>
+        <div class="stat-value" id="nextBonus">4</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button id="spinBtn">Tourner les rouleaux</button>
+      <button id="speedBtn">⏩ Accélérer</button>
+      <button id="resetBtn">Nouvelle partie</button>
+    </div>
+
+    <div id="message">Prêt à jouer ? Alignez 5 symboles identiques pour remporter le jackpot !</div>
+
+    <div id="resultContainer" class="hidden result-box">
+      <h3>🎉 JACKPOT GAGNÉ !</h3>
+      <p id="winMessage">Vous avez aligné les 5 symboles !</p>
+      <p id="attemptsResult">Nombre de tours : 0</p>
+      <p id="winningSymbol">Symbole gagnant : </p>
+      <p id="jackpotWin" class="jackpot-amount">+ 0 🌹</p>
+    </div>
+
+    <div class="speed-indicator" id="speedIndicator">VITESSE RAPIDE</div>
+  </div>
+
+  <script>
+    // Variables du jeu
+    let symbols = [];
+    let attempts = 0;
+    let isSpinning = false;
+    let winAnimationActive = false;
+    let attackMode = 1;
+    let currentDifficulty = 5; // 5 symboles (niveau 2 uniquement)
+    let isFastMode = false;
+    let lastWinningSymbol = null;
+    let rosesCount = 0;
+    let jackpotAmount = 0;
+    let bonusCounter = 0;
+
+    // Symboles disponibles avec le symbole remplacé
+    const symbolTypes = [
+      { 
+        type: 'symbol1', 
+        image: 'https://i.ibb.co/whJNdnxZ/symbol1.png', 
+        name: 'Symbole 1',
+        colorClass: 'symbol-1'
+      },
+      { 
+        type: 'symbol2', 
+        image: 'https://i.ibb.co/ymsZKVwn/symbol2.png', 
+        name: 'Symbole 2',
+        colorClass: 'symbol-2'
+      },
+      { 
+        type: 'symbol3', 
+        image: 'https://i.ibb.co/gbf2RYFk/symbol3.png', 
+        name: 'Symbole 3',
+        colorClass: 'symbol-3'
+      },
+      { 
+        type: 'symbol4', 
+        image: 'https://i.ibb.co/sv8c6sRK/symbol4.png', 
+        name: 'Symbole 4',
+        colorClass: 'symbol-4'
+      },
+      { 
+        type: 'symbol5', 
+        image: 'https://i.ibb.co/Xr6J8bfK/symbol5.png', 
+        name: 'Symbole 5',
+        colorClass: 'symbol-5'
+      },
+      { 
+        type: 'symbol6', 
+        image: 'https://i.ibb.co/prk8cpBr/symbol6.png',  // Symbole remplacé
+        name: 'Symbole 6',
+        colorClass: 'symbol-6'
+      },
+      { 
+        type: 'symbol7', 
+        image: 'https://i.ibb.co/2fBDM0x/symbol7.png', 
+        name: 'Symbole 7',
+        colorClass: 'symbol-7'
+      },
+      { 
+        type: 'symbol8', 
+        image: 'https://i.ibb.co/gbnj5Qzw/symbol8.png', 
+        name: 'Symbole 8',
+        colorClass: 'symbol-8'
+      }
+    ];
+
+    // Éléments DOM
+    const lockContainer = document.getElementById('lockContainer');
+    const spinBtn = document.getElementById('spinBtn');
+    const speedBtn = document.getElementById('speedBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const message = document.getElementById('message');
+    const resultContainer = document.getElementById('resultContainer');
+    const attemptsCount = document.getElementById('attemptsCount');
+    const rosesCountElement = document.getElementById('rosesCount');
+    const nextBonusElement = document.getElementById('nextBonus');
+    const jackpotAmountElement = document.getElementById('jackpotAmount');
+    const jackpotDisplay = document.getElementById('jackpotDisplay');
+    const jackpotInfo = document.getElementById('jackpotInfo');
+    const attemptsResult = document.getElementById('attemptsResult');
+    const winMessage = document.getElementById('winMessage');
+    const winningSymbolElement = document.getElementById('winningSymbol');
+    const jackpotWinElement = document.getElementById('jackpotWin');
+    const difficultyInfo = document.getElementById('difficultyInfo');
+    const speedIndicator = document.getElementById('speedIndicator');
+
+    // Initialisation du jeu
+    function initGame() {
+      attempts = 0;
+      rosesCount = 0;
+      jackpotAmount = 0;
+      bonusCounter = 0;
+      symbols = Array(currentDifficulty).fill(0).map(() => getRandomSymbol());
+      updateDisplay();
+      updateStats();
+      resultContainer.classList.add('hidden');
+      updateDifficultyInfo();
+      message.textContent = `Prêt à jouer ? Alignez ${currentDifficulty} symboles identiques pour remporter le jackpot !`;
+      spinBtn.disabled = false;
+      removeWinClasses();
+      updateJackpotDisplay();
+    }
+
+    // Mettre à jour les statistiques
+    function updateStats() {
+      attemptsCount.textContent = attempts;
+      rosesCountElement.textContent = rosesCount;
+      nextBonusElement.textContent = 4 - (bonusCounter % 4);
+    }
+
+    // Mettre à jour l'affichage du jackpot
+    function updateJackpotDisplay() {
+      jackpotAmountElement.textContent = `${jackpotAmount} 🌹`;
+      
+      if (jackpotAmount >= 1000) {
+        jackpotDisplay.classList.remove('jackpot-hidden');
+        jackpotDisplay.classList.add('jackpot-visible');
+        jackpotInfo.textContent = `Jackpot progressif ! Gagnez ${jackpotAmount} roses !`;
+      } else {
+        jackpotDisplay.classList.remove('jackpot-visible');
+        jackpotDisplay.classList.add('jackpot-hidden');
+        jackpotInfo.textContent = `Jackpot visible à partir de 1000 roses`;
+      }
+    }
+
+    // Obtenir un symbole aléatoire
+    function getRandomSymbol() {
+      return Math.floor(Math.random() * symbolTypes.length);
+    }
+
+    // Mise à jour de l'affichage des symboles
+    function updateDisplay() {
+      lockContainer.innerHTML = '';
+      
+      symbols.forEach((symbolIndex, index) => {
+        const symbolElement = document.createElement('div');
+        symbolElement.className = `symbol-wheel ${symbolTypes[symbolIndex].colorClass}`;
+        symbolElement.id = `symbol${index + 1}`;
+        
+        const symbolData = symbolTypes[symbolIndex];
+        const img = document.createElement('img');
+        img.src = symbolData.image;
+        img.alt = symbolData.name;
+        img.className = 'symbol-image';
+        symbolElement.appendChild(img);
+        
+        lockContainer.appendChild(symbolElement);
+      });
+    }
+
+    // Mise à jour des informations de difficulté
+    function updateDifficultyInfo() {
+      difficultyInfo.textContent = `Objectif : Aligner 5 symboles identiques ! (0.0244% de chances - 1 sur 4,096)`;
+    }
+
+    // Supprimer les classes de victoire
+    function removeWinClasses() {
+      document.querySelectorAll('.symbol-wheel').forEach(symbol => {
+        symbol.classList.remove('winning');
+        symbol.classList.remove('spinning');
+        symbol.classList.remove('fast-spin');
+        
+        symbolTypes.forEach((sym, index) => {
+          symbol.classList.remove(sym.colorClass);
+        });
+        
+        const currentSymbol = symbols[parseInt(symbol.id.replace('symbol', '')) - 1];
+        if (currentSymbol !== undefined) {
+          symbol.classList.add(symbolTypes[currentSymbol].colorClass);
+        }
+      });
+    }
+
+    // Vérifier la victoire
+    function checkWin() {
+      const firstSymbol = symbols[0];
+      for (let i = 1; i < symbols.length; i++) {
+        if (symbols[i] !== firstSymbol) {
+          return false;
+        }
+      }
+      
+      lastWinningSymbol = firstSymbol;
+      return true;
+    }
+
+    // Gérer le bonus de roses
+    function handleRoseBonus() {
+      bonusCounter++;
+      
+      // Ajouter une rose seulement tous les 4 tours
+      if (bonusCounter % 4 === 0) {
+        rosesCount += 1;
+        jackpotAmount += 1;
+        message.textContent = `🌹 +1 rose ajoutée au jackpot !`;
+        
+        updateStats();
+        updateJackpotDisplay();
+      }
+    }
+
+    // Animation de rotation d'un symbole
+    function spinSymbol(index) {
+      return new Promise(resolve => {
+        const symbolElement = document.getElementById(`symbol${index + 1}`);
+        if (!symbolElement) return resolve();
+        
+        if (isFastMode) {
+          symbolElement.classList.add('spinning', 'fast-spin');
+        } else {
+          symbolElement.classList.add('spinning');
+        }
+        
+        let spins = 0;
+        const maxSpins = isFastMode ? 5 + Math.floor(Math.random() * 5) : 10 + Math.floor(Math.random() * 10);
+        const spinInterval = isFastMode ? 30 : 100;
+        
+        const spinIntervalId = setInterval(() => {
+          symbols[index] = getRandomSymbol();
+          updateSingleSymbol(index);
+          spins++;
+          
+          if (spins >= maxSpins) {
+            clearInterval(spinIntervalId);
+            symbolElement.classList.remove('spinning', 'fast-spin');
+            setTimeout(resolve, isFastMode ? 20 : 100);
+          }
+        }, spinInterval);
+      });
+    }
+
+    // Mettre à jour un seul symbole
+    function updateSingleSymbol(index) {
+      const symbolElement = document.getElementById(`symbol${index + 1}`);
+      if (!symbolElement) return;
+      
+      symbolTypes.forEach(sym => {
+        symbolElement.classList.remove(sym.colorClass);
+      });
+      
+      const symbolData = symbolTypes[symbols[index]];
+      symbolElement.classList.add(symbolData.colorClass);
+      
+      symbolElement.innerHTML = '';
+      const img = document.createElement('img');
+      img.src = symbolData.image;
+      img.alt = symbolData.name;
+      img.className = 'symbol-image';
+      symbolElement.appendChild(img);
+    }
+
+    // Basculer le mode accéléré
+    function toggleSpeedMode() {
+      isFastMode = !isFastMode;
+      
+      if (isFastMode) {
+        speedBtn.classList.add('active');
+        speedBtn.innerHTML = '⏩ Ralenti';
+        speedIndicator.style.display = 'block';
+        message.textContent = 'Mode accéléré activé !';
+      } else {
+        speedBtn.classList.remove('active');
+        speedBtn.innerHTML = '⏩ Accélérer';
+        speedIndicator.style.display = 'none';
+        message.textContent = 'Mode normal activé';
+      }
+    }
+
+    // Afficher la récompense
+    function showReward() {
+      const rewardAnimation = document.createElement('div');
+      rewardAnimation.className = 'reward-animation';
+      
+      rewardAnimation.innerHTML = `
+        <div class="reward-popup">
+          <div class="reward-popup-icon">
+            <img src="${symbolTypes[lastWinningSymbol].image}" alt="${symbolTypes[lastWinningSymbol].name}" style="width: 100px; height: 100px;">
+          </div>
+          <div class="reward-popup-title">JACKPOT GAGNÉ !</div>
+          <div class="reward-popup-description">Vous avez remporté ${jackpotAmount} roses !</div>
+          <button class="reward-close">CONTINUER</button>
+        </div>
+      `;
+      
+      document.body.appendChild(rewardAnimation);
+      
+      const closeButton = rewardAnimation.querySelector('.reward-close');
+      closeButton.addEventListener('click', () => {
+        document.body.removeChild(rewardAnimation);
+      });
+      
+      setTimeout(() => {
+        if (document.body.contains(rewardAnimation)) {
+          document.body.removeChild(rewardAnimation);
+        }
+      }, 7000);
+    }
+
+    // Tourner tous les symboles
+    async function spinAllSymbols() {
+      if (isSpinning) return;
+      
+      isSpinning = true;
+      spinBtn.disabled = true;
+      message.textContent = "Les rouleaux tournent...";
+      
+      for (let coup = 0; coup < attackMode; coup++) {
+        let canWin = true;
+        let firstSymbol = null;
+        
+        // Faire tourner les symboles un par un et s'arrêter dès qu'il n'y a plus de chance
+        for (let i = 0; i < currentDifficulty && canWin; i++) {
+          await spinSymbol(i);
+          
+          if (i === 0) {
+            // Premier symbole : on garde sa valeur comme référence
+            firstSymbol = symbols[0];
+          } else {
+            // Symboles suivants : vérifier s'ils sont identiques au premier
+            if (symbols[i] !== firstSymbol) {
+              canWin = false;
+              message.textContent = `Pas de chance... Symbole ${i + 1} différent !`;
+            }
+          }
+        }
+        
+        attempts++;
+        
+        // Gérer le bonus de roses
+        handleRoseBonus();
+        updateStats();
+        
+        if (canWin && checkWin()) {
+          await winGame();
+          break;
+        } else if (coup < attackMode - 1) {
+          await new Promise(resolve => setTimeout(resolve, isFastMode ? 100 : 300));
+        }
+      }
+      
+      if (!checkWin()) {
+        const symbolCounts = {};
+        symbols.forEach(symbolIndex => {
+          const symbolName = symbolTypes[symbolIndex].name;
+          symbolCounts[symbolName] = (symbolCounts[symbolName] || 0) + 1;
+        });
+        
+        const maxCount = Math.max(...Object.values(symbolCounts));
+        message.textContent = `Maximum ${maxCount} symboles identiques - Jackpot: ${jackpotAmount} roses`;
+      }
+      
+      isSpinning = false;
+      spinBtn.disabled = false;
+    }
+
+    // Gestion de la victoire
+    async function winGame() {
+      winAnimationActive = true;
+      const winningSymbol = symbolTypes[lastWinningSymbol];
+      message.textContent = `🎉 JACKPOT ! Vous avez aligné ${currentDifficulty} ${winningSymbol.name}s ! 🎉`;
+      
+      for (let i = 0; i < currentDifficulty; i++) {
+        setTimeout(() => {
+          const symbolElement = document.getElementById(`symbol${i + 1}`);
+          if (symbolElement) symbolElement.classList.add('winning');
+        }, i * 200);
+      }
+      
+      winMessage.textContent = `Vous avez aligné ${currentDifficulty} ${winningSymbol.name}s !`;
+      attemptsResult.textContent = `Nombre de tours : ${attempts}`;
+      winningSymbolElement.textContent = `Symbole gagnant : ${winningSymbol.name}`;
+      jackpotWinElement.textContent = `+ ${jackpotAmount} 🌹`;
+      
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      resultContainer.classList.remove('hidden');
+      
+      showReward();
+      
+      setTimeout(() => {
+        winAnimationActive = false;
+      }, 5000);
+    }
+
+    // Définir le mode d'attaque
+    function setAttackMode(mode) {
+      attackMode = mode;
+      
+      document.querySelectorAll('.attack-mode-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      document.getElementById(`mode${mode}`).classList.add('active');
+      
+      spinBtn.textContent = `Tourner (${mode.toLocaleString()} tour${mode > 1 ? 's' : ''})`;
+    }
+
+    // Événements
+    spinBtn.addEventListener('click', spinAllSymbols);
+    speedBtn.addEventListener('click', toggleSpeedMode);
+    resetBtn.addEventListener('click', initGame);
+
+    document.getElementById("mode1").addEventListener("click", () => setAttackMode(1));
+    document.getElementById("mode5").addEventListener("click", () => setAttackMode(5));
+    document.getElementById("mode10").addEventListener("click", () => setAttackMode(10));
+    document.getElementById("mode30").addEventListener("click", () => setAttackMode(30));
+    document.getElementById("mode100").addEventListener("click", () => setAttackMode(100));
+    document.getElementById("mode500").addEventListener("click", () => setAttackMode(500));
+    document.getElementById("mode1000").addEventListener("click", () => setAttackMode(1000));
+
+    // Raccourcis clavier
+    document.addEventListener('keydown', (e) => {
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        if (!isSpinning && !winAnimationActive) {
+          spinAllSymbols();
+        }
+      }
+      
+      if (e.key === 'r' || e.key === 'R') {
+        initGame();
+      }
+      
+      if (e.key === 's' || e.key === 'S') {
+        toggleSpeedMode();
+      }
+      
+      if (e.key >= '1' && e.key <= '7') {
+        const modes = [1, 5, 10, 30, 100, 500, 1000];
+        const index = parseInt(e.key) - 1;
+        if (index < modes.length) {
+          setAttackMode(modes[index]);
+        }
+      }
+    });
+
+    // Initialisation au chargement
+    window.addEventListener('load', initGame);
+  </script>
+</body>
+</html>
