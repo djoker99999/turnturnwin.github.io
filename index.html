@@ -363,6 +363,61 @@
       color: #feca57;
     }
 
+    /* TABLEAU DES DERNIERS GAINS */
+    .gains-history {
+      margin: 20px auto;
+      max-width: 600px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 15px;
+      padding: 15px;
+      border: 2px solid #feca57;
+    }
+
+    .gains-history h3 {
+      color: #feca57;
+      margin-bottom: 15px;
+      font-size: 1.3em;
+      text-transform: uppercase;
+    }
+
+    .gains-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .gains-table th {
+      background: linear-gradient(45deg, #feca57, #ff6b9d);
+      color: white;
+      padding: 10px;
+      text-align: center;
+      font-size: 0.9em;
+      text-transform: uppercase;
+    }
+
+    .gains-table td {
+      padding: 8px;
+      text-align: center;
+      color: white;
+      border-bottom: 1px solid rgba(254, 202, 87, 0.3);
+    }
+
+    .gains-table tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .gains-table .gain-amount {
+      color: #feca57;
+      font-weight: bold;
+      font-size: 1.1em;
+    }
+
+    .no-gains {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.6);
+      padding: 20px;
+      font-style: italic;
+    }
+
     .win-animation {
       position: fixed;
       top: 0;
@@ -584,6 +639,27 @@
       display: none;
     }
 
+    /* INDICATEUR DE SAUVEGARDE */
+    .save-indicator {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: linear-gradient(45deg, #27ae60, #2ecc71);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-size: 0.9em;
+      font-weight: bold;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 10000;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+
+    .save-indicator.show {
+      opacity: 1;
+    }
+
     /* COULEURS POUR CHAQUE SYMBOLE */
     .symbol-1 { border-color: #9b59b6; }
     .symbol-2 { border-color: #e74c3c; }
@@ -689,7 +765,7 @@
     <!-- COMPTEUR DE ROSES JACKPOT -->
     <div class="jackpot-display" id="jackpotDisplay">
       <div class="jackpot-label">JACKPOT ACTUEL</div>
-      <div class="jackpot-amount" id="jackpotAmount">0 🌹</div>
+      <div class="jackpot-amount" id="jackpotAmount">250 🌹</div>
       <div class="jackpot-info" id="jackpotInfo">Jackpot visible à partir de 1000 roses</div>
     </div>
 
@@ -715,11 +791,15 @@
     <!-- STATISTIQUES -->
     <div class="stats">
       <div class="stat-item">
-        <div>Tours joués</div>
+        <div>Tours totaux</div>
         <div class="stat-value" id="attemptsCount">0</div>
       </div>
       <div class="stat-item">
-        <div>Roses accumulées</div>
+        <div>Tours cette partie</div>
+        <div class="stat-value" id="currentGameAttempts">0</div>
+      </div>
+      <div class="stat-item">
+        <div>Roses totales</div>
         <div class="stat-value" id="rosesCount">0</div>
       </div>
       <div class="stat-item">
@@ -728,10 +808,19 @@
       </div>
     </div>
 
+    <!-- TABLEAU DES DERNIERS GAINS -->
+    <div class="gains-history">
+      <h3>🏆 Historique des Jackpots 🏆</h3>
+      <div id="gainsTableContainer">
+        <div class="no-gains">Aucun jackpot gagné pour le moment</div>
+      </div>
+    </div>
+
     <div class="controls">
       <button id="spinBtn">Tourner les rouleaux</button>
       <button id="speedBtn">⏩ Accélérer</button>
-      <button id="resetBtn">Nouvelle partie</button>
+      <button id="resetBtn">Réinitialiser Jackpot</button>
+      <button id="clearBtn" style="background: linear-gradient(45deg, #e74c3c, #c0392b);">🗑️ Effacer données</button>
     </div>
 
     <div id="message">Prêt à jouer ? Alignez 5 symboles identiques pour remporter le jackpot !</div>
@@ -747,19 +836,133 @@
     <div class="speed-indicator" id="speedIndicator">VITESSE RAPIDE</div>
   </div>
 
+  <!-- Indicateur de sauvegarde -->
+  <div class="save-indicator" id="saveIndicator">💾 Sauvegarde automatique</div>
+
   <script>
     // Variables du jeu
     let symbols = [];
-    let attempts = 0;
+    let attempts = 0; // Compteur total de tours (ne se réinitialise jamais)
+    let currentGameAttempts = 0; // Compteur de tours pour la partie en cours
     let isSpinning = false;
     let winAnimationActive = false;
     let attackMode = 1;
     let currentDifficulty = 5; // 5 symboles (niveau 2 uniquement)
     let isFastMode = false;
     let lastWinningSymbol = null;
-    let rosesCount = 0;
-    let jackpotAmount = 0;
+    let rosesCount = 0; // Roses totales gagnées (ne se réinitialise jamais)
+    let jackpotAmount = 250; // Commence toujours à 250
     let bonusCounter = 0;
+    let gainsHistory = []; // Historique des gains
+
+    // SYSTÈME DE SAUVEGARDE
+    const SAVE_KEY = 'jackpotGameSave';
+    let showSaveIndicator = true; // Pour éviter le spam de notifications
+
+    // Fonction de sauvegarde
+    function saveGame(showNotification = true) {
+      const saveData = {
+        attempts: attempts,
+        currentGameAttempts: currentGameAttempts,
+        rosesCount: rosesCount,
+        jackpotAmount: jackpotAmount,
+        bonusCounter: bonusCounter,
+        gainsHistory: gainsHistory,
+        lastSaved: new Date().toISOString()
+      };
+      
+      try {
+        localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
+        
+        // Afficher brièvement l'indicateur de sauvegarde (seulement si demandé)
+        const saveIndicator = document.getElementById('saveIndicator');
+        if (saveIndicator && showNotification && showSaveIndicator) {
+          saveIndicator.classList.add('show');
+          setTimeout(() => {
+            saveIndicator.classList.remove('show');
+          }, 1500);
+        }
+        
+        console.log('Partie sauvegardée automatiquement');
+      } catch (e) {
+        console.error('Erreur lors de la sauvegarde:', e);
+      }
+    }
+
+    // Fonction de chargement
+    function loadGame() {
+      try {
+        const savedData = localStorage.getItem(SAVE_KEY);
+        
+        if (savedData) {
+          const data = JSON.parse(savedData);
+          
+          attempts = data.attempts || 0;
+          currentGameAttempts = data.currentGameAttempts || 0;
+          rosesCount = data.rosesCount || 0;
+          jackpotAmount = data.jackpotAmount || 250;
+          bonusCounter = data.bonusCounter || 0;
+          gainsHistory = data.gainsHistory || [];
+          
+          console.log('Partie chargée depuis la sauvegarde');
+          
+          // Afficher un message de bienvenue avec les stats
+          setTimeout(() => {
+            message.textContent = `Bon retour ! Vous avez ${rosesCount} roses totales et ${gainsHistory.length} jackpot(s) gagné(s) !`;
+          }, 500);
+          
+          return true;
+        }
+      } catch (e) {
+        console.error('Erreur lors du chargement:', e);
+      }
+      
+      return false;
+    }
+
+    // Fonction pour effacer la sauvegarde
+    function clearSave() {
+      if (confirm('⚠️ ATTENTION ⚠️\n\nVoulez-vous vraiment effacer TOUTES vos données de jeu ?\n\nCela supprimera :\n• ' + attempts + ' tours joués\n• ' + rosesCount + ' roses gagnées\n• ' + gainsHistory.length + ' jackpots dans l\'historique\n\nCette action est IRRÉVERSIBLE !')) {
+        localStorage.removeItem(SAVE_KEY);
+        
+        // Réinitialiser toutes les variables
+        attempts = 0;
+        currentGameAttempts = 0;
+        rosesCount = 0;
+        jackpotAmount = 250;
+        bonusCounter = 0;
+        gainsHistory = [];
+        
+        // Réinitialiser l'affichage
+        symbols = Array(currentDifficulty).fill(0).map(() => getRandomSymbol());
+        updateDisplay();
+        updateStats();
+        updateGainsTable();
+        updateJackpotDisplay();
+        removeWinClasses();
+        
+        message.textContent = '🗑️ Toutes les données ont été effacées ! Vous repartez de zéro.';
+        
+        // Animation de confirmation
+        const gameContainer = document.querySelector('.game-container');
+        gameContainer.style.animation = 'none';
+        setTimeout(() => {
+          gameContainer.style.animation = '';
+        }, 100);
+      }
+    }
+
+    // Sauvegarde automatique toutes les 10 secondes pendant le jeu
+    setInterval(() => {
+      if (!isSpinning && attempts > 0) {
+        saveGame(true); // Avec notification
+      }
+    }, 10000);
+
+    // Sauvegarder avant de quitter la page
+    window.addEventListener('beforeunload', () => {
+      saveGame(false); // Sans notification car la page se ferme
+    });
 
     // Symboles disponibles avec le symbole remplacé
     const symbolTypes = [
@@ -818,9 +1021,11 @@
     const spinBtn = document.getElementById('spinBtn');
     const speedBtn = document.getElementById('speedBtn');
     const resetBtn = document.getElementById('resetBtn');
+    const clearBtn = document.getElementById('clearBtn');
     const message = document.getElementById('message');
     const resultContainer = document.getElementById('resultContainer');
     const attemptsCount = document.getElementById('attemptsCount');
+    const currentGameAttemptsElement = document.getElementById('currentGameAttempts');
     const rosesCountElement = document.getElementById('rosesCount');
     const nextBonusElement = document.getElementById('nextBonus');
     const jackpotAmountElement = document.getElementById('jackpotAmount');
@@ -832,19 +1037,23 @@
     const jackpotWinElement = document.getElementById('jackpotWin');
     const difficultyInfo = document.getElementById('difficultyInfo');
     const speedIndicator = document.getElementById('speedIndicator');
+    const gainsTableContainer = document.getElementById('gainsTableContainer');
 
     // Initialisation du jeu
     function initGame() {
-      attempts = 0;
-      rosesCount = 0;
-      jackpotAmount = 0;
+      // Ne PAS réinitialiser attempts (compteur total)
+      // Ne PAS réinitialiser rosesCount (roses totales)
+      // Ne PAS réinitialiser gainsHistory (historique)
+      
+      currentGameAttempts = 0; // Réinitialiser seulement le compteur de la partie en cours
+      jackpotAmount = 250; // Toujours commencer à 250
       bonusCounter = 0;
       symbols = Array(currentDifficulty).fill(0).map(() => getRandomSymbol());
       updateDisplay();
       updateStats();
       resultContainer.classList.add('hidden');
       updateDifficultyInfo();
-      message.textContent = `Prêt à jouer ? Alignez ${currentDifficulty} symboles identiques pour remporter le jackpot !`;
+      message.textContent = `Nouvelle partie ! Le jackpot commence à 250 roses. Alignez ${currentDifficulty} symboles identiques !`;
       spinBtn.disabled = false;
       removeWinClasses();
       updateJackpotDisplay();
@@ -852,9 +1061,13 @@
 
     // Mettre à jour les statistiques
     function updateStats() {
-      attemptsCount.textContent = attempts;
-      rosesCountElement.textContent = rosesCount;
+      attemptsCount.textContent = attempts; // Compteur total
+      currentGameAttemptsElement.textContent = currentGameAttempts; // Compteur de la partie
+      rosesCountElement.textContent = rosesCount; // Roses totales
       nextBonusElement.textContent = 4 - (bonusCounter % 4);
+      
+      // Sauvegarder après chaque mise à jour (sans notification)
+      saveGame(false);
     }
 
     // Mettre à jour l'affichage du jackpot
@@ -870,6 +1083,54 @@
         jackpotDisplay.classList.add('jackpot-hidden');
         jackpotInfo.textContent = `Jackpot visible à partir de 1000 roses`;
       }
+    }
+
+    // Mettre à jour le tableau des gains
+    function updateGainsTable() {
+      if (gainsHistory.length === 0) {
+        gainsTableContainer.innerHTML = '<div class="no-gains">Aucun jackpot gagné pour le moment</div>';
+        return;
+      }
+
+      let tableHTML = `
+        <table class="gains-table">
+          <thead>
+            <tr>
+              <th>N°</th>
+              <th>Date</th>
+              <th>Tours</th>
+              <th>Symbole</th>
+              <th>Gain</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      // Afficher les 10 derniers gains (ou moins s'il y en a moins de 10)
+      const recentGains = gainsHistory.slice(-10).reverse();
+      recentGains.forEach((gain, index) => {
+        const gainNumber = gainsHistory.length - index;
+        const dateDisplay = gain.date ? gain.date.split(' ')[0] : '-';
+        tableHTML += `
+          <tr>
+            <td>#${gainNumber}</td>
+            <td style="font-size: 0.85em;">${dateDisplay}</td>
+            <td>${gain.tours}</td>
+            <td>${gain.symbole}</td>
+            <td class="gain-amount">${gain.roses} 🌹</td>
+          </tr>
+        `;
+      });
+
+      tableHTML += '</tbody></table>';
+      
+      if (gainsHistory.length > 10) {
+        tableHTML += `<div style="text-align: center; color: #feca57; margin-top: 10px; font-size: 0.9em;">
+          Affichage des 10 derniers jackpots (${gainsHistory.length} au total)
+        </div>`;
+      }
+      
+      gainsTableContainer.innerHTML = tableHTML;
     }
 
     // Obtenir un symbole aléatoire
@@ -1074,6 +1335,7 @@
         }
         
         attempts++;
+        currentGameAttempts++;
         
         // Gérer le bonus de roses
         handleRoseBonus();
@@ -1108,6 +1370,24 @@
       const winningSymbol = symbolTypes[lastWinningSymbol];
       message.textContent = `🎉 JACKPOT ! Vous avez aligné ${currentDifficulty} ${winningSymbol.name}s ! 🎉`;
       
+      // Ajouter le gain à l'historique
+      gainsHistory.push({
+        tours: currentGameAttempts,
+        symbole: winningSymbol.name,
+        roses: jackpotAmount,
+        date: new Date().toLocaleString('fr-FR')
+      });
+      
+      // Ajouter les roses au total
+      rosesCount += jackpotAmount;
+      
+      // Sauvegarder immédiatement après la victoire (avec notification)
+      saveGame(true);
+      
+      // Mettre à jour le tableau des gains
+      updateGainsTable();
+      updateStats();
+      
       for (let i = 0; i < currentDifficulty; i++) {
         setTimeout(() => {
           const symbolElement = document.getElementById(`symbol${i + 1}`);
@@ -1116,7 +1396,7 @@
       }
       
       winMessage.textContent = `Vous avez aligné ${currentDifficulty} ${winningSymbol.name}s !`;
-      attemptsResult.textContent = `Nombre de tours : ${attempts}`;
+      attemptsResult.textContent = `Nombre de tours dans cette partie : ${currentGameAttempts}`;
       winningSymbolElement.textContent = `Symbole gagnant : ${winningSymbol.name}`;
       jackpotWinElement.textContent = `+ ${jackpotAmount} 🌹`;
       
@@ -1147,6 +1427,7 @@
     spinBtn.addEventListener('click', spinAllSymbols);
     speedBtn.addEventListener('click', toggleSpeedMode);
     resetBtn.addEventListener('click', initGame);
+    clearBtn.addEventListener('click', clearSave);
 
     document.getElementById("mode1").addEventListener("click", () => setAttackMode(1));
     document.getElementById("mode5").addEventListener("click", () => setAttackMode(5));
@@ -1183,7 +1464,22 @@
     });
 
     // Initialisation au chargement
-    window.addEventListener('load', initGame);
+    window.addEventListener('load', () => {
+      // Essayer de charger une sauvegarde existante
+      const hasLoadedSave = loadGame();
+      
+      // Initialiser le jeu (avec les données chargées ou par défaut)
+      symbols = Array(currentDifficulty).fill(0).map(() => getRandomSymbol());
+      updateDisplay();
+      updateStats();
+      updateGainsTable();
+      updateJackpotDisplay();
+      removeWinClasses();
+      
+      if (!hasLoadedSave) {
+        message.textContent = `Bienvenue ! Alignez ${currentDifficulty} symboles identiques pour remporter le jackpot !`;
+      }
+    });
   </script>
 </body>
 </html>
