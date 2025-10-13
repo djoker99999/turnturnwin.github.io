@@ -816,10 +816,10 @@
 
     <!-- NOUVEAU : COMPTEUR DE TOURS RESTANTS -->
     <div class="remaining-turns" id="remainingTurns">
-      <div class="remaining-turns-label">Prochaine rose dans</div>
-      <div class="remaining-turns-value" id="remainingTurnsValue">20 tours</div>
+      <div class="remaining-turns-label">Tours restants</div>
+      <div class="remaining-turns-value" id="remainingTurnsValue">0</div>
       <div class="remaining-turns-progress">
-        <div class="remaining-turns-progress-bar" id="remainingTurnsProgress" style="width: 100%"></div>
+        <div class="remaining-turns-progress-bar" id="remainingTurnsProgress" style="width: 0%"></div>
       </div>
     </div>
 
@@ -908,6 +908,7 @@
     let jackpotAmount = 250; // Commence toujours à 250
     let bonusCounter = 0;
     let gainsHistory = []; // Historique des gains
+    let remainingTurns = 0; // Tours restants pour l'attaque en cours
 
     // SYSTÈME DE SAUVEGARDE
     const SAVE_KEY = 'jackpotGameSave';
@@ -986,6 +987,7 @@
         jackpotAmount = 250;
         bonusCounter = 0;
         gainsHistory = [];
+        remainingTurns = 0;
         
         // Réinitialiser l'affichage
         symbols = Array(currentDifficulty).fill(0).map(() => getRandomSymbol());
@@ -1123,6 +1125,7 @@
       currentGameAttempts = 0; // Réinitialiser seulement le compteur de la partie en cours
       jackpotAmount = 250; // Toujours commencer à 250
       bonusCounter = 0;
+      remainingTurns = 0;
       symbols = Array(currentDifficulty).fill(0).map(() => getRandomSymbol());
       updateDisplay();
       updateStats();
@@ -1148,12 +1151,16 @@
 
     // Mettre à jour l'affichage du compteur de tours restants
     function updateRemainingTurns() {
-      const turnsUntilBonus = 20 - (bonusCounter % 20);
-      remainingTurnsValue.textContent = `${turnsUntilBonus} tour${turnsUntilBonus > 1 ? 's' : ''}`;
-      
-      // Mettre à jour la barre de progression
-      const progressPercentage = (turnsUntilBonus / 20) * 100;
-      remainingTurnsProgress.style.width = `${progressPercentage}%`;
+      if (remainingTurns > 0) {
+        remainingTurnsValue.textContent = `${remainingTurns} tour${remainingTurns > 1 ? 's' : ''}`;
+        
+        // Mettre à jour la barre de progression
+        const progressPercentage = (remainingTurns / attackMode) * 100;
+        remainingTurnsProgress.style.width = `${progressPercentage}%`;
+      } else {
+        remainingTurnsValue.textContent = '0';
+        remainingTurnsProgress.style.width = '0%';
+      }
     }
 
     // Mettre à jour l'affichage du jackpot
@@ -1293,9 +1300,6 @@
         updateStats();
         updateJackpotDisplay();
       }
-      
-      // Mettre à jour le compteur de tours restants
-      updateRemainingTurns();
     }
 
     // Animation de rotation d'un symbole
@@ -1403,6 +1407,10 @@
       spinBtn.disabled = true;
       message.textContent = "Les rouleaux tournent...";
       
+      // Initialiser le compteur de tours restants
+      remainingTurns = attackMode;
+      updateRemainingTurns();
+      
       for (let coup = 0; coup < attackMode; coup++) {
         let canWin = true;
         let firstSymbol = null;
@@ -1425,6 +1433,10 @@
         
         attempts++;
         currentGameAttempts++;
+        
+        // Mettre à jour le compteur de tours restants
+        remainingTurns = attackMode - coup - 1;
+        updateRemainingTurns();
         
         // Gérer le bonus de roses
         handleRoseBonus();
