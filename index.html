@@ -694,6 +694,46 @@
       filter: none;
     }
 
+    /* NOUVEAU : COMPTEUR DE TOURS RESTANTS */
+    .remaining-turns {
+      background: linear-gradient(45deg, #3498db, #2980b9);
+      padding: 10px;
+      border-radius: 10px;
+      margin: 10px 0;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .remaining-turns-label {
+      font-size: 1em;
+      margin-bottom: 5px;
+      color: white;
+    }
+
+    .remaining-turns-value {
+      font-size: 1.8em;
+      font-weight: bold;
+      color: #feca57;
+    }
+
+    .remaining-turns-progress {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      margin-top: 5px;
+      overflow: hidden;
+    }
+
+    .remaining-turns-progress-bar {
+      height: 100%;
+      background: linear-gradient(45deg, #feca57, #ff6b9d);
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+
     @media (max-width: 768px) {
       .game-container {
         padding: 20px;
@@ -774,7 +814,16 @@
       <div class="jackpot-info" id="jackpotInfo">Jackpot visible à partir de 1000 roses</div>
     </div>
 
-    <div class="difficulty-info" id="difficultyInfo">Objectif : Aligner 5 symboles identiques ! (0.0244% de chances - 1 sur 4,096)</div>
+    <!-- NOUVEAU : COMPTEUR DE TOURS RESTANTS -->
+    <div class="remaining-turns" id="remainingTurns">
+      <div class="remaining-turns-label">Prochaine rose dans</div>
+      <div class="remaining-turns-value" id="remainingTurnsValue">20 tours</div>
+      <div class="remaining-turns-progress">
+        <div class="remaining-turns-progress-bar" id="remainingTurnsProgress" style="width: 100%"></div>
+      </div>
+    </div>
+
+    <div class="difficulty-info" id="difficultyInfo">Objectif : Aligner 6 symboles identiques ! (0.0017% de chances - 1 sur 59,049)</div>
     
     <div class="lock-body">
       <div class="lock-shackle"></div>
@@ -809,7 +858,7 @@
       </div>
       <div class="stat-item">
         <div>Prochain bonus</div>
-        <div class="stat-value" id="nextBonus">4</div>
+        <div class="stat-value" id="nextBonus">20</div>
       </div>
     </div>
 
@@ -828,11 +877,11 @@
       <button id="clearBtn" style="background: linear-gradient(45deg, #e74c3c, #c0392b);">🗑️ Effacer données</button>
     </div>
 
-    <div id="message">Prêt à jouer ? Alignez 5 symboles identiques pour remporter le jackpot !</div>
+    <div id="message">Prêt à jouer ? Alignez 6 symboles identiques pour remporter le jackpot !</div>
 
     <div id="resultContainer" class="hidden result-box">
       <h3>🎉 JACKPOT GAGNÉ !</h3>
-      <p id="winMessage">Vous avez aligné les 5 symboles !</p>
+      <p id="winMessage">Vous avez aligné les 6 symboles !</p>
       <p id="attemptsResult">Nombre de tours : 0</p>
       <p id="winningSymbol">Symbole gagnant : </p>
       <p id="jackpotWin" class="jackpot-amount">+ 0 🌹</p>
@@ -852,7 +901,7 @@
     let isSpinning = false;
     let winAnimationActive = false;
     let attackMode = 1;
-    let currentDifficulty = 5; // 5 symboles (niveau 2 uniquement)
+    let currentDifficulty = 6; // 6 symboles (niveau 2 uniquement)
     let isFastMode = false;
     let lastWinningSymbol = null;
     let rosesCount = 0; // Roses totales gagnées (ne se réinitialise jamais)
@@ -944,6 +993,7 @@
         updateStats();
         updateGainsTable();
         updateJackpotDisplay();
+        updateRemainingTurns();
         removeWinClasses();
         
         message.textContent = '🗑️ Toutes les données ont été effacées ! Vous repartez de zéro.';
@@ -1061,6 +1111,8 @@
     const difficultyInfo = document.getElementById('difficultyInfo');
     const speedIndicator = document.getElementById('speedIndicator');
     const gainsTableContainer = document.getElementById('gainsTableContainer');
+    const remainingTurnsValue = document.getElementById('remainingTurnsValue');
+    const remainingTurnsProgress = document.getElementById('remainingTurnsProgress');
 
     // Initialisation du jeu
     function initGame() {
@@ -1074,6 +1126,7 @@
       symbols = Array(currentDifficulty).fill(0).map(() => getRandomSymbol());
       updateDisplay();
       updateStats();
+      updateRemainingTurns();
       resultContainer.classList.add('hidden');
       updateDifficultyInfo();
       message.textContent = `Nouvelle partie ! Le jackpot commence à 250 roses. Alignez ${currentDifficulty} symboles identiques !`;
@@ -1087,10 +1140,20 @@
       attemptsCount.textContent = attempts; // Compteur total
       currentGameAttemptsElement.textContent = currentGameAttempts; // Compteur de la partie
       rosesCountElement.textContent = rosesCount; // Roses totales
-      nextBonusElement.textContent = 4 - (bonusCounter % 4);
+      nextBonusElement.textContent = 20 - (bonusCounter % 20);
       
       // Sauvegarder après chaque mise à jour (sans notification)
       saveGame(false);
+    }
+
+    // Mettre à jour l'affichage du compteur de tours restants
+    function updateRemainingTurns() {
+      const turnsUntilBonus = 20 - (bonusCounter % 20);
+      remainingTurnsValue.textContent = `${turnsUntilBonus} tour${turnsUntilBonus > 1 ? 's' : ''}`;
+      
+      // Mettre à jour la barre de progression
+      const progressPercentage = (turnsUntilBonus / 20) * 100;
+      remainingTurnsProgress.style.width = `${progressPercentage}%`;
     }
 
     // Mettre à jour l'affichage du jackpot
@@ -1183,7 +1246,7 @@
 
     // Mise à jour des informations de difficulté
     function updateDifficultyInfo() {
-      difficultyInfo.textContent = `Objectif : Aligner 5 symboles identiques ! (0.0244% de chances - 1 sur 4,096)`;
+      difficultyInfo.textContent = `Objectif : Aligner 6 symboles identiques ! (0.0017% de chances - 1 sur 59,049)`;
     }
 
     // Supprimer les classes de victoire
@@ -1221,8 +1284,8 @@
     function handleRoseBonus() {
       bonusCounter++;
       
-      // Ajouter une rose seulement tous les 4 tours
-      if (bonusCounter % 4 === 0) {
+      // Ajouter une rose seulement tous les 20 tours
+      if (bonusCounter % 20 === 0) {
         rosesCount += 1;
         jackpotAmount += 1;
         message.textContent = `🌹 +1 rose ajoutée au jackpot !`;
@@ -1230,6 +1293,9 @@
         updateStats();
         updateJackpotDisplay();
       }
+      
+      // Mettre à jour le compteur de tours restants
+      updateRemainingTurns();
     }
 
     // Animation de rotation d'un symbole
@@ -1497,6 +1563,7 @@
       updateStats();
       updateGainsTable();
       updateJackpotDisplay();
+      updateRemainingTurns();
       removeWinClasses();
       
       if (!hasLoadedSave) {
