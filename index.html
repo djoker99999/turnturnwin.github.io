@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -669,6 +668,9 @@
     .symbol-6 { border-color: #27ae60; }
     .symbol-7 { border-color: #8e44ad; }
     .symbol-8 { border-color: #d35400; }
+    .symbol-9 { border-color: #16a085; }
+    .symbol-10 { border-color: #2980b9; }
+    .symbol-11 { border-color: #c0392b; }
 
     .symbol-1.winning { background: linear-gradient(145deg, #8e44ad, #9b59b6); }
     .symbol-2.winning { background: linear-gradient(145deg, #c0392b, #e74c3c); }
@@ -678,6 +680,9 @@
     .symbol-6.winning { background: linear-gradient(145deg, #27ae60, #2ecc71); }
     .symbol-7.winning { background: linear-gradient(145deg, #8e44ad, #9b59b6); }
     .symbol-8.winning { background: linear-gradient(145deg, #e67e22, #f39c12); }
+    .symbol-9.winning { background: linear-gradient(145deg, #16a085, #1abc9c); }
+    .symbol-10.winning { background: linear-gradient(145deg, #2980b9, #3498db); }
+    .symbol-11.winning { background: linear-gradient(145deg, #c0392b, #e74c3c); }
 
     .jackpot-hidden {
       opacity: 0.3;
@@ -964,7 +969,7 @@
       saveGame(false); // Sans notification car la page se ferme
     });
 
-    // Symboles disponibles avec le symbole remplacé
+    // Symboles disponibles avec les nouveaux symboles ajoutés
     const symbolTypes = [
       { 
         type: 'symbol1', 
@@ -998,7 +1003,7 @@
       },
       { 
         type: 'symbol6', 
-        image: 'https://i.ibb.co/prk8cpBr/symbol6.png',  // Symbole remplacé
+        image: 'https://i.ibb.co/prk8cpBr/symbol6.png',
         name: 'Symbole 6',
         colorClass: 'symbol-6'
       },
@@ -1013,6 +1018,24 @@
         image: 'https://i.ibb.co/gbnj5Qzw/symbol8.png', 
         name: 'Symbole 8',
         colorClass: 'symbol-8'
+      },
+      { 
+        type: 'symbol9', 
+        image: 'https://i.ibb.co/DfDvmC8T/IMG-6585.png', 
+        name: 'Symbole 9',
+        colorClass: 'symbol-9'
+      },
+      { 
+        type: 'symbol10', 
+        image: 'https://i.ibb.co/2YpQxB1Y/IMG-6620.png', 
+        name: 'Symbole 10',
+        colorClass: 'symbol-10'
+      },
+      { 
+        type: 'symbol11', 
+        image: 'https://i.ibb.co/0pM1D3wm/IMG-7123.png', 
+        name: 'Symbole 11',
+        colorClass: 'symbol-11'
       }
     ];
 
